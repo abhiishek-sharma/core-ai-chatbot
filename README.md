@@ -320,28 +320,46 @@ start htmlcov/index.html  # Windows
 
 ## 🚢 Deployment
 
+### Vercel Deployment (Recommended)
+
+Deploy to Vercel in minutes with serverless functions:
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy from project root
+vercel
+
+# Add environment variable
+vercel env add MISTRAL_API_KEY production
+
+# Deploy to production
+vercel --prod
+```
+
+**Or deploy via GitHub:**
+1. Push code to GitHub
+2. Import project at [vercel.com/new](https://vercel.com/new)
+3. Add `MISTRAL_API_KEY` environment variable
+4. Deploy automatically
+
+See [VERCEL_QUICK_START.md](VERCEL_QUICK_START.md) for quick setup or [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
 ### Docker Deployment
 
 ```bash
 # Production deployment
-docker-compose -f deployments/docker/docker-compose.prod.yml up -d
-```
-
-### Kubernetes Deployment
-
-```bash
-# Apply Kubernetes manifests
-kubectl apply -f deployments/kubernetes/
+docker-compose up -d
 ```
 
 ### Cloud Platforms
 
+- **Vercel**: Serverless deployment (recommended for quick start)
 - **AWS**: ECS, Lambda, Elastic Beanstalk
 - **Google Cloud**: Cloud Run, App Engine, GKE
 - **Azure**: Container Instances, App Service, AKS
 - **Railway, Render, Fly.io**: Direct deployment support
-
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment guides.
 
 ---
 

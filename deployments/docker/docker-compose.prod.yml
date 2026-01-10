@@ -1,0 +1,230 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (Production)
+  postgres:
+    image: postgres:15-alpine
+    container_name: core_ai_postgres_prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chatbot_db}
+      POSTGRES_USER: ${POSTGRES_USER:-chatbot_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./postgres-backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chatbot_user} -d ${POSTGRES_DB:-chatbot_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - core_ai_network
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache (Production)
+  redis:
+    image: redis:7-alpine
+    container_name: core_ai_redis_prod
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - core_ai_network
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Backend API (Production)
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+      args:
+        - ENVIRONMENT=production
+    container_name: core_ai_backend_prod
+    image: core-ai-chatbot-backend:production
+    environment:
+      # Application
+      APP_NAME: "CORE AI Chatbot API"
+      ENVIRONMENT: "production"
+      DEBUG: "false"
+
+      # Server
+      HOST: "0.0.0.0"
+      PORT: "8000"
+
+      # Database
+      DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER:-chatbot_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-chatbot_db}"
+      DATABASE_POOL_SIZE: "20"
+      DATABASE_MAX_OVERFLOW: "40"
+      DATABASE_ECHO: "false"
+
+      # Redis
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_DB: "0"
+
+      # Mistral AI
+      MISTRAL_API_KEY: "${MISTRAL_API_KEY}"
+      MISTRAL_MODEL: "${MISTRAL_MODEL:-mistral-small-latest}"
+      MISTRAL_MAX_TOKENS: "4096"
+      MISTRAL_TEMPERATURE: "0.7"
+      MISTRAL_TIMEOUT: "120"
+
+      # Security
+      SECRET_KEY: "${SECRET_KEY}"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+      REFRESH_TOKEN_EXPIRE_DAYS: "7"
+
+      # CORS
+      CORS_ORIGINS: "${CORS_ORIGINS}"
+
+      # Logging
+      LOG_LEVEL: "INFO"
+      LOG_FILE: "logs/app.log"
+
+      # Rate Limiting
+      RATE_LIMIT_ENABLED: "true"
+      RATE_LIMIT_PER_MINUTE: "100"
+      RATE_LIMIT_PER_HOUR: "5000"
+
+      # Monitoring
+      ENABLE_METRICS: "true"
+      SENTRY_DSN: "${SENTRY_DSN:-}"
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_logs_prod:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - core_ai_network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # Frontend Application (Production)
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${API_URL:-http://localhost:8000}
+        - NODE_ENV=production
+    container_name: core_ai_frontend_prod
+    image: core-ai-chatbot-frontend:production
+    environment:
+      VITE_API_URL: "${API_URL:-http://localhost:8000}"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - core_ai_network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx Reverse Proxy (Production)
+  nginx:
+    image: nginx:alpine
+    container_name: core_ai_nginx_prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - core_ai_network
+    restart: always
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  core_ai_network:
+    driver: bridge
+    name: core_ai_network_prod
+
+volumes:
+  postgres_data_prod:
+    name: core_ai_postgres_data_prod
+    driver: local
+  redis_data_prod:
+    name: core_ai_redis_data_prod
+    driver: local
+  backend_logs_prod:
+    name: core_ai_backend_logs_prod
+    driver: local
+  nginx_logs:
+    name: core_ai_nginx_logs
+    driver: local

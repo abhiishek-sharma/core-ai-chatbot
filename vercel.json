@@ -1,41 +1,21 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/build",
+  "installCommand": "npm install --prefix frontend",
+  "rewrites": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    },
-    {
-      "src": "backend/main.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "15mb"
-      }
+      "source": "/api/:path*",
+      "destination": "/api/index.py"
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/backend/main.py"
-    },
     {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "/index.html"
     }
-  ],
-  "env": {
-    "MISTRAL_API_KEY": "@mistral_api_key"
-  },
-  "functions": {
-    "backend/main.py": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  }
+  ]
 }

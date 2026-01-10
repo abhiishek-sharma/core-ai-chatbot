@@ -10,17 +10,17 @@ export default {
       },
       colors: {
         core: {
-          50: "#f0f4ff",
-          100: "#e0e9ff",
-          200: "#c7d7fe",
-          300: "#a4bcfd",
-          400: "#8b9cfc",
-          500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
-          800: "#3730a3",
-          900: "#312e81",
-          950: "#1e1b4b",
+          50: "#f8f9fa",
+          100: "#e9ecef",
+          200: "#dee2e6",
+          300: "#adb5bd",
+          400: "#6c757d",
+          500: "#2d3436",
+          600: "#212529",
+          700: "#1a1d20",
+          800: "#0f1214",
+          900: "#0a0c0e",
+          950: "#000000",
         },
         cyber: {
           50: "#f0fdfa",
@@ -62,13 +62,13 @@ export default {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        "gradient-core": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        "gradient-core": "linear-gradient(135deg, #2d3436 0%, #0a0c0e 100%)",
         "gradient-cyber":
-          "linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #5eead4 100%)",
+          "linear-gradient(135deg, #334155 0%, #1e293b 50%, #0f172a 100%)",
         "gradient-neon":
-          "linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%)",
+          "linear-gradient(135deg, #475569 0%, #334155 50%, #1e293b 100%)",
         "gradient-mesh":
-          "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%)",
+          "linear-gradient(135deg, rgba(45, 52, 54, 0.1) 0%, rgba(30, 41, 59, 0.1) 100%)",
       },
       animation: {
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
@@ -111,11 +111,11 @@ export default {
         glow: {
           "0%, 100%": {
             boxShadow:
-              "0 0 20px rgba(99, 102, 241, 0.3), 0 0 40px rgba(99, 102, 241, 0.1)",
+              "0 0 20px rgba(45, 52, 54, 0.3), 0 0 40px rgba(45, 52, 54, 0.1)",
           },
           "50%": {
             boxShadow:
-              "0 0 30px rgba(99, 102, 241, 0.5), 0 0 60px rgba(99, 102, 241, 0.2)",
+              "0 0 30px rgba(45, 52, 54, 0.5), 0 0 60px rgba(45, 52, 54, 0.2)",
           },
         },
         float: {
@@ -132,12 +132,12 @@ export default {
         },
       },
       boxShadow: {
-        neon: "0 0 20px rgba(99, 102, 241, 0.5)",
-        "neon-lg": "0 0 30px rgba(99, 102, 241, 0.6)",
+        neon: "0 0 20px rgba(45, 52, 54, 0.5)",
+        "neon-lg": "0 0 30px rgba(45, 52, 54, 0.6)",
         cyber: "0 0 20px rgba(20, 184, 166, 0.5)",
         "cyber-lg": "0 0 30px rgba(20, 184, 166, 0.6)",
-        glow: "0 0 15px rgba(99, 102, 241, 0.3)",
-        "inner-glow": "inset 0 0 20px rgba(99, 102, 241, 0.1)",
+        glow: "0 0 15px rgba(45, 52, 54, 0.3)",
+        "inner-glow": "inset 0 0 20px rgba(45, 52, 54, 0.1)",
       },
       backdropBlur: {
         xs: "2px",

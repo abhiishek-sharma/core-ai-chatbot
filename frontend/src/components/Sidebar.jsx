@@ -64,7 +64,7 @@ const Sidebar = ({
         </button>
         <button
           onClick={onNewChat}
-          className="p-3 bg-core-500 text-white rounded-xl hover:bg-core-600 transition-colors"
+          className="p-3 bg-slate-700 text-white rounded-xl hover:bg-slate-600 transition-colors"
           title="New chat"
         >
           <Plus size={20} />
@@ -87,7 +87,7 @@ const Sidebar = ({
       <div className="p-4 border-b border-slate-800">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-core-500 to-core-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center border border-slate-600">
               <Cpu size={18} className="text-white" />
             </div>
             <span className="font-semibold text-slate-100">Core</span>
@@ -104,7 +104,7 @@ const Sidebar = ({
         {/* New Chat Button */}
         <button
           onClick={onNewChat}
-          className="w-full flex items-center gap-2 px-4 py-2.5 bg-core-500 hover:bg-core-600 text-white rounded-xl transition-colors font-medium"
+          className="w-full flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-colors font-medium"
         >
           <Plus size={18} />
           <span>New Chat</span>
@@ -123,7 +123,7 @@ const Sidebar = ({
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-core-500/50"
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-600"
           />
         </div>
       </div>
@@ -156,7 +156,7 @@ const Sidebar = ({
                         if (e.key === "Enter") handleSaveEdit(conv.id);
                         if (e.key === "Escape") handleCancelEdit();
                       }}
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-100 focus:outline-none focus:border-core-500"
+                      className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-100 focus:outline-none focus:border-slate-600"
                       autoFocus
                     />
                     <button

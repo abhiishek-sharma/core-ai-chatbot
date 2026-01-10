@@ -109,15 +109,36 @@ function App() {
   };
 
   const handleSendMessage = useCallback(
-    async (message) => {
+    async (message, attachments = []) => {
       setIsLoading(true);
       setError(null);
       setStreamingContent("");
+
+      // Process attachments to base64 for storage/display
+      const processedAttachments = await Promise.all(
+        attachments.map(async (attachment) => {
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              resolve({
+                id: attachment.id,
+                name: attachment.name,
+                type: attachment.type,
+                size: attachment.size,
+                isImage: attachment.isImage,
+                data: reader.result,
+              });
+            };
+            reader.readAsDataURL(attachment.file);
+          });
+        })
+      );
 
       // Add user message immediately
       const userMessage = {
         role: "user",
         content: message,
+        attachments: processedAttachments,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, userMessage]);
@@ -283,7 +304,7 @@ function App() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-core-500 to-core-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center border border-slate-600">
                 <Cpu size={18} className="text-white" />
               </div>
               <span className="font-semibold text-slate-200 text-lg">Core</span>
@@ -323,7 +344,7 @@ function App() {
         </header>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto relative">
+        <div className={`flex-1 relative ${displayMessages.length === 0 ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {displayMessages.length === 0 ? (
             <WelcomeScreen onExampleClick={handleExampleClick} />
           ) : (

@@ -539,24 +539,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🙏 Acknowledgments
-
-- [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
-- [Mistral AI](https://mistral.ai/) - AI language model provider
-- [React](https://reactjs.org/) - UI framework
-- [SQLAlchemy](https://www.sqlalchemy.org/) - Database toolkit
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-
----
-
-## 📞 Support
-
-- **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/core-ai-chatbot/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/core-ai-chatbot/discussions)
-
----
-
 ## 🌟 Show Your Support
 
 If you find this project helpful, please consider giving it a ⭐ on GitHub!

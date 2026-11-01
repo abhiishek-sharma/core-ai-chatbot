@@ -1,554 +1,148 @@
 # CORE AI Chatbot
 
-<div align="center">
+AI chatbot with a dark-themed UI, powered by Mistral AI. FastAPI backend with streaming Server-Sent Events, React frontend, deployable to Vercel.
 
-![CORE AI](https://img.shields.io/badge/CORE-AI-6366f1?style=for-the-badge&logo=openai&logoColor=white)
+## Features
 
-**Enterprise-grade AI chatbot with cyberpunk UI powered by Mistral AI**
+- **Mistral AI chat** with streaming (SSE) and non-streaming modes
+- **Conversation management** — create, rename, delete, clear conversations
+- **Persistent storage** — SQLite locally; in-memory fallback on read-only filesystems
+- **Dark UI** — React 18 + Tailwind CSS, markdown rendering, syntax highlighting
+- **Vercel deployment** — Python serverless function + static frontend
+- **Docker support** — docker-compose for local development with PostgreSQL and Redis
 
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+## Quick Start
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [API Docs](#-api-documentation)
+### Prerequisites
 
-</div>
+- Python 3.11+
+- Node.js 18+
+- A Mistral AI API key — [get one here](https://console.mistral.ai/)
 
----
-
-## 📖 Overview
-
-CORE AI Chatbot is a production-ready, enterprise-grade conversational AI system featuring:
-
-- 🏗️ **Clean Architecture** - Layered design (API → Service → Repository → Database)
-- 🔐 **Enterprise Security** - JWT authentication, API keys, rate limiting, password hashing
-- 💾 **Multi-Database Support** - PostgreSQL, MySQL, SQLite, MongoDB
-- ⚡ **High Performance** - Async operations, connection pooling, caching
-- 🧪 **Comprehensive Testing** - 80%+ code coverage with pytest
-- 🐳 **Production Ready** - Docker support with CI/CD pipeline
-- 📚 **Well Documented** - Complete API docs and architecture guides
-
----
-
-## ✨ Features
-
-### Core Features
-- 🤖 **AI-Powered Chat** - Mistral AI integration with streaming responses
-- 💬 **Conversation Management** - Create, update, delete, and search conversations
-- 📝 **Message History** - Persistent storage with full context retention
-- ⚙️ **Configurable AI** - Custom system prompts, temperature, and token limits
-- 🔄 **Real-time Streaming** - Server-Sent Events for live responses
-- 🎨 **Cyberpunk UI** - Futuristic interface with neon accents and glassmorphism
-
-### Enterprise Features
-- 🔐 **Authentication** - JWT tokens, API keys, OAuth2 ready
-- 📊 **Database Options** - PostgreSQL, MySQL, SQLite, MongoDB support
-- 🚀 **Scalable** - Horizontal scaling ready with load balancing
-- 📈 **Monitoring** - Health checks, structured logging, metrics
-- 🧪 **Testing** - Unit and integration tests included
-- 🐳 **Containerized** - Docker and Kubernetes configurations
-- 🔄 **CI/CD** - GitHub Actions workflow included
-
----
-
-## 🚀 Quick Start
-
-### Option 1: Docker (Recommended)
+### Local Development
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/core-ai-chatbot.git
+# Clone and configure
+git clone https://github.com/abhiishek-sharma/core-ai-chatbot.git
 cd core-ai-chatbot
-
-# Configure environment
-cp backend/.env.example backend/.env
-# Edit backend/.env and add your MISTRAL_API_KEY
-
-# Start all services
-docker-compose up -d
-
-# Access the application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
-
-### Option 2: Manual Setup
-
-```bash
-# Backend setup
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements-enterprise.txt
 cp .env.example .env
-# Edit .env with your MISTRAL_API_KEY
+# Edit .env and add your MISTRAL_API_KEY
 
-# Initialize database
-python ../scripts/init_db.py
+# Backend
+cd api
+pip install -r requirements.txt
+uvicorn index:app --reload --port 8000
 
-# Run backend
-uvicorn app.main:app --reload
-
-# Frontend setup (new terminal)
+# Frontend (separate terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
-### Automated Setup
+Open http://localhost:3000. The Vite dev server proxies `/api/*` requests to the backend at port 8000.
 
-```bash
-# Linux/macOS
-chmod +x scripts/setup_dev.sh
-./scripts/setup_dev.sh
+### Vercel Deployment
 
-# Windows
-scripts\setup_dev.bat
-```
+1. Push the repo to GitHub
+2. Import at [vercel.com/new](https://vercel.com/new)
+3. Set the environment variable `MISTRAL_API_KEY` in the Vercel dashboard
+4. Deploy
 
----
+See [Environment Variables for Vercel](#environment-variables-for-vercel) below.
 
-## 📦 Prerequisites
-
-- **Python** 3.11+
-- **Node.js** 18+
-- **Docker & Docker Compose** (optional but recommended)
-- **PostgreSQL** 15+ (or use SQLite for development)
-- **Mistral AI API Key** - [Get one here](https://console.mistral.ai/)
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 core-ai-chatbot/
-├── backend/                    # FastAPI backend
-│   ├── app/
-│   │   ├── api/v1/            # Versioned API endpoints
-│   │   ├── core/              # Core infrastructure (config, database, security)
-│   │   ├── models/            # SQLAlchemy database models
-│   │   ├── schemas/           # Pydantic request/response schemas
-│   │   ├── repositories/      # Data access layer
-│   │   ├── services/          # Business logic layer
-│   │   └── main.py            # Application entry point
-│   ├── tests/                 # Test suite (unit + integration)
-│   ├── logs/                  # Application logs
-│   └── Dockerfile
-│
-├── frontend/                   # React frontend
+├── api/
+│   ├── index.py           # FastAPI backend (Vercel serverless function)
+│   └── requirements.txt   # Python dependencies (pinned)
+├── frontend/
 │   ├── src/
-│   │   ├── components/        # React components
-│   │   ├── api.js             # API client
-│   │   └── App.jsx            # Main application
+│   │   ├── App.jsx        # Main React component
+│   │   ├── api.js         # API client
+│   │   └── components/    # Chat UI components
 │   ├── package.json
-│   └── Dockerfile
-│
-├── scripts/                    # Utility scripts
-│   ├── init_db.py             # Database initialization
-│   ├── setup_dev.sh           # Development setup (Unix)
-│   └── setup_dev.bat          # Development setup (Windows)
-│
-├── deployments/                # Deployment configurations
-│   ├── kubernetes/            # Kubernetes manifests
-│   └── docker/                # Docker configurations
-│
-├── docs/                       # Documentation
-│   ├── ARCHITECTURE.md        # System architecture
-│   ├── MIGRATION.md           # Migration guide
-│   └── QUICK_REFERENCE.md     # Command reference
-│
-├── .github/                    # GitHub configuration
-│   ├── workflows/             # CI/CD pipelines
-│   └── ISSUE_TEMPLATE/        # Issue templates
-│
-├── assets/                     # Project assets (logos, screenshots)
-├── docker-compose.yml          # Development environment
-├── .gitignore
-├── LICENSE
-├── CONTRIBUTING.md
-├── CHANGELOG.md
-└── README.md                   # This file
+│   └── vite.config.js
+├── tests/
+│   ├── conftest.py        # Test fixtures
+│   └── test_api.py        # API endpoint tests
+├── backend/               # Extended backend code (config, models, repos — not used by the running API)
+├── vercel.json            # Vercel deployment config
+├── .env.example           # Environment variable template
+└── requirements-dev.txt   # Dev dependencies (includes test runner)
 ```
 
----
+## API Endpoints
 
-## ⚙️ Configuration
+| Method   | Path                                | Description                |
+| -------- | ----------------------------------- | -------------------------- |
+| `GET`    | `/`                                 | API status                 |
+| `GET`    | `/health`                           | Health check               |
+| `GET`    | `/conversations`                    | List all conversations     |
+| `POST`   | `/conversations`                    | Create a conversation      |
+| `GET`    | `/conversations/{id}`               | Get conversation + messages|
+| `PUT`    | `/conversations/{id}`               | Rename a conversation      |
+| `DELETE` | `/conversations/{id}`               | Delete a conversation      |
+| `POST`   | `/conversations/{id}/clear`         | Clear messages             |
+| `POST`   | `/chat`                             | Send message (non-streaming) |
+| `POST`   | `/chat/stream`                      | Send message (streaming SSE) |
 
-### Environment Variables
+On Vercel, all endpoints are served under `/api/` (e.g. `/api/chat/stream`).
 
-Create `backend/.env` from the template:
+## Storage
 
-```env
-# Required
-MISTRAL_API_KEY=your_mistral_api_key_here
-SECRET_KEY=your-secret-key-minimum-32-characters
+- **Local development**: SQLite via `aiosqlite`. The database file defaults to `chatbot.db` in the working directory (configurable via `DATABASE_PATH`).
+- **Vercel serverless**: SQLite can write to `/tmp` but data does not persist across cold starts or instances. For durable storage in production, use an external database such as [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres).
 
-# Database (choose one)
-DATABASE_URL=sqlite+aiosqlite:///./chatbot.db
-# DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/chatbot_db
-
-# Application
-ENVIRONMENT=development
-DEBUG=true
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-```
-
-See [`backend/.env.example`](backend/.env.example) for all configuration options.
-
----
-
-## 🎯 API Endpoints
-
-### Conversations
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/conversations` | List all conversations |
-| `POST` | `/api/v1/conversations` | Create new conversation |
-| `GET` | `/api/v1/conversations/{id}` | Get conversation details |
-| `PUT` | `/api/v1/conversations/{id}` | Update conversation |
-| `DELETE` | `/api/v1/conversations/{id}` | Delete conversation |
-
-### Chat
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/chat` | Send message (non-streaming) |
-| `POST` | `/api/v1/chat/stream` | Send message (streaming SSE) |
-
-### Health
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/health` | Application health check |
-| `GET` | `/api/v1/health/db` | Database health check |
-| `GET` | `/api/v1/health/ai` | AI service health check |
-
----
-
-## 📚 API Documentation
-
-Interactive API documentation is available at:
-
-- **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
-
-### Example Usage
-
-```python
-import httpx
-import asyncio
-
-async def chat_example():
-    async with httpx.AsyncClient() as client:
-        # Create conversation
-        response = await client.post(
-            "http://localhost:8000/api/v1/conversations",
-            json={"title": "Test Chat"}
-        )
-        conv_id = response.json()["id"]
-        
-        # Send message
-        response = await client.post(
-            "http://localhost:8000/api/v1/chat",
-            json={
-                "message": "What are REST API best practices?",
-                "conversation_id": conv_id,
-                "temperature": 0.7
-            }
-        )
-        print(response.json())
-
-asyncio.run(chat_example())
-```
-
----
-
-## 🏗️ Architecture
-
-### Layered Architecture
-
-```
-┌─────────────────────────────────────┐
-│      Client Layer (React)           │
-└───────────────┬─────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────┐
-│      API Layer (FastAPI)            │
-│   Endpoints • Validation • Routing  │
-└───────────────┬─────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────┐
-│     Service Layer (Business Logic)  │
-│  ConversationService • AIService    │
-└───────────────┬─────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────┐
-│   Repository Layer (Data Access)    │
-│  ConversationRepo • MessageRepo     │
-└───────────────┬─────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────┐
-│   Database Layer (PostgreSQL/etc)   │
-└─────────────────────────────────────┘
-```
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentation.
-
----
-
-## 🧪 Testing
+## Testing
 
 ```bash
-# Run all tests
-cd backend
+pip install -r requirements-dev.txt
 pytest tests/ -v
-
-# Run with coverage
-pytest tests/ -v --cov=app --cov-report=html
-
-# View coverage report
-open htmlcov/index.html  # macOS
-start htmlcov/index.html  # Windows
 ```
 
----
+Tests mock all Mistral API calls. Both in-memory and SQLite storage paths are tested.
 
-## 🚢 Deployment
+## Environment Variables for Vercel
 
-### Vercel Deployment (Recommended)
+Set these in the Vercel project dashboard under **Settings → Environment Variables**:
 
-Deploy to Vercel in minutes with serverless functions:
+| Variable           | Required | Description                          |
+| ------------------ | -------- | ------------------------------------ |
+| `MISTRAL_API_KEY`  | Yes      | Your Mistral AI API key              |
+| `MISTRAL_MODEL`    | No       | Model name (default: `mistral-small-latest`) |
+| `DATABASE_PATH`    | No       | SQLite path (default: `chatbot.db`; use `/tmp/chatbot.db` on Vercel for ephemeral storage) |
 
-```bash
-# Install Vercel CLI
-npm install -g vercel
+**Vercel settings to check:**
+- **Framework Preset**: Other
+- **Root Directory**: `.` (project root)
+- **Build Command**: (leave default — `vercel.json` provides it)
+- **Output Directory**: (leave default — `vercel.json` provides it)
+- **Node.js Version**: 18.x or 20.x
+- **Python Version**: 3.12 (Vercel's Python runtime default)
 
-# Deploy from project root
-vercel
+> **Note:** Vercel Hobby plan limits serverless functions to 10 seconds. Streaming responses from Mistral may exceed this. Use the Pro plan (60s limit) for reliable streaming, or set `maxDuration` higher on Enterprise.
 
-# Add environment variable
-vercel env add MISTRAL_API_KEY production
-
-# Deploy to production
-vercel --prod
-```
-
-**Or deploy via GitHub:**
-1. Push code to GitHub
-2. Import project at [vercel.com/new](https://vercel.com/new)
-3. Add `MISTRAL_API_KEY` environment variable
-4. Deploy automatically
-
-See [VERCEL_QUICK_START.md](VERCEL_QUICK_START.md) for quick setup or [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
-
-### Docker Deployment
-
-```bash
-# Production deployment
-docker-compose up -d
-```
-
-### Cloud Platforms
-
-- **Vercel**: Serverless deployment (recommended for quick start)
-- **AWS**: ECS, Lambda, Elastic Beanstalk
-- **Google Cloud**: Cloud Run, App Engine, GKE
-- **Azure**: Container Instances, App Service, AKS
-- **Railway, Render, Fly.io**: Direct deployment support
-
----
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
-- **Framework**: FastAPI 0.109+
-- **Server**: Uvicorn (ASGI)
-- **Database ORM**: SQLAlchemy 2.0 (async)
-- **Validation**: Pydantic 2.5+
-- **Authentication**: JWT (python-jose)
-- **Password Hashing**: bcrypt
-- **HTTP Client**: httpx
-- **Testing**: pytest + pytest-asyncio
-- **Code Quality**: black, flake8, mypy
+- FastAPI 0.115
+- httpx (Mistral API client)
+- aiosqlite (SQLite async driver)
+- Pydantic 2.x
 
 ### Frontend
-- **Framework**: React 18
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Markdown**: React Markdown
-- **Icons**: Lucide React
-- **HTTP**: Fetch API
+- React 18
+- Vite 5
+- Tailwind CSS 3
+- React Markdown + Syntax Highlighter
+- Lucide React (icons)
 
 ### Infrastructure
-- **Database**: PostgreSQL, MySQL, SQLite, MongoDB
-- **Cache**: Redis
-- **Containers**: Docker, Docker Compose
-- **Orchestration**: Kubernetes
-- **CI/CD**: GitHub Actions
+- Vercel (serverless + static hosting)
+- Docker Compose (local dev with PostgreSQL/Redis, optional)
 
----
+## License
 
-## 📊 Key Benefits
-
-| Aspect | Implementation |
-|--------|----------------|
-| **Architecture** | Clean layered architecture with separation of concerns |
-| **Security** | JWT, bcrypt, rate limiting, input validation |
-| **Database** | Multi-database support with migrations |
-| **Performance** | Async operations, connection pooling, caching |
-| **Testing** | Comprehensive test suite with 80%+ coverage |
-| **Monitoring** | Health checks, structured logging, metrics |
-| **Deployment** | Docker, Kubernetes, CI/CD ready |
-| **Documentation** | Auto-generated API docs + comprehensive guides |
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Quick Contribution Steps
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-```bash
-# Format code
-black app/
-isort app/
-
-# Run tests
-pytest tests/ -v
-
-# Type checking
-mypy app/
-```
-
----
-
-## 📚 Documentation
-
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - System design and patterns
-- **[Migration Guide](docs/MIGRATION.md)** - Upgrading from legacy versions
-- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Common commands and operations
-- **[API Documentation](http://localhost:8000/docs)** - Interactive API docs
-
----
-
-## 🔐 Security
-
-- JWT token authentication with refresh tokens
-- Password hashing using bcrypt
-- API key generation and validation
-- Rate limiting to prevent abuse
-- CORS configuration
-- Input validation with Pydantic
-- SQL injection prevention (ORM)
-- XSS protection
-
-**Security Disclosure**: Please report security vulnerabilities to security@example.com
-
----
-
-## 📊 Performance
-
-- **Response Time**: < 100ms (non-AI endpoints)
-- **Throughput**: 1000+ requests/sec
-- **Database**: Optimized with indexes and connection pooling
-- **Caching**: Redis support for hot data
-- **Scalability**: Horizontal scaling with load balancer
-
----
-
-## 🗺️ Roadmap
-
-### Version 1.x (Current)
-- ✅ Enterprise architecture
-- ✅ Multi-database support
-- ✅ JWT authentication infrastructure
-- ✅ Comprehensive testing
-- ✅ Docker deployment
-
-### Version 2.0 (Planned)
-- [ ] User authentication system
-- [ ] Multi-tenancy support
-- [ ] Advanced analytics dashboard
-- [ ] Message attachments
-- [ ] Voice input/output
-- [ ] Mobile app support
-
-### Version 3.0 (Future)
-- [ ] GraphQL API
-- [ ] WebSocket support
-- [ ] Real-time collaboration
-- [ ] Plugin system
-- [ ] Advanced AI features
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Port already in use:**
-```bash
-# Linux/macOS
-lsof -i :8000
-kill -9 <PID>
-
-# Windows
-netstat -ano | findstr :8000
-taskkill /PID <PID> /F
-```
-
-**Database connection error:**
-```bash
-# Check database is running
-docker-compose ps postgres
-
-# Restart database
-docker-compose restart postgres
-```
-
-**Import errors:**
-```bash
-# Reinstall dependencies
-pip install -r requirements-enterprise.txt
-
-# Verify installation
-python -c "from app.main import app; print('OK')"
-```
-
-See [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) for more troubleshooting tips.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🌟 Show Your Support
-
-If you find this project helpful, please consider giving it a ⭐ on GitHub!
-
----
-
-<div align="center">
-
-**Built with ❤️ by the CORE AI Team**
-
-[Report Bug](https://github.com/yourusername/core-ai-chatbot/issues) • [Request Feature](https://github.com/yourusername/core-ai-chatbot/issues)
-
-</div>
+MIT — see [LICENSE](LICENSE).

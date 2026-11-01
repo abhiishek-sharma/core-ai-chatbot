@@ -1,14 +1,12 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 export const api = {
-  // Get all conversations
   async getConversations() {
     const response = await fetch(`${API_BASE_URL}/conversations`);
     if (!response.ok) throw new Error("Failed to fetch conversations");
     return response.json();
   },
 
-  // Create a new conversation
   async createConversation(title = "New Chat") {
     const response = await fetch(`${API_BASE_URL}/conversations`, {
       method: "POST",
@@ -19,7 +17,6 @@ export const api = {
     return response.json();
   },
 
-  // Get a specific conversation
   async getConversation(conversationId) {
     const response = await fetch(
       `${API_BASE_URL}/conversations/${conversationId}`,
@@ -28,7 +25,6 @@ export const api = {
     return response.json();
   },
 
-  // Update conversation title
   async updateConversation(conversationId, title) {
     const response = await fetch(
       `${API_BASE_URL}/conversations/${conversationId}`,
@@ -42,7 +38,6 @@ export const api = {
     return response.json();
   },
 
-  // Delete a conversation
   async deleteConversation(conversationId) {
     const response = await fetch(
       `${API_BASE_URL}/conversations/${conversationId}`,
@@ -54,7 +49,6 @@ export const api = {
     return response.json();
   },
 
-  // Send a message (non-streaming)
   async sendMessage(
     message,
     conversationId = null,
@@ -75,7 +69,6 @@ export const api = {
     return response.json();
   },
 
-  // Send a message (streaming)
   async sendMessageStream(
     message,
     conversationId = null,
@@ -104,13 +97,15 @@ export const api = {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let conversationIdFromStream = conversationId;
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop();
 
         for (const line of lines) {
           if (line.startsWith("data: ")) {
@@ -136,7 +131,6 @@ export const api = {
     }
   },
 
-  // Clear conversation messages
   async clearConversation(conversationId) {
     const response = await fetch(
       `${API_BASE_URL}/conversations/${conversationId}/clear`,

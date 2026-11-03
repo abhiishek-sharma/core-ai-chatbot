@@ -3,11 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "vercel-build": "cd frontend && npm install && npm run build",
-    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && python main.py\"",
-    "install-all": "cd frontend && npm install && cd ../backend && pip install -r requirements.txt"
-  },
-  "workspaces": [
-    "frontend"
-  ]
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd api && uvicorn index:app --reload --port 8000",
+    "test": "pytest tests/ -v"
+  }
 }
